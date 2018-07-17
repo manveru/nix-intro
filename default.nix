@@ -32,7 +32,10 @@ let
         </style>
         <body>
           <h1>Nix Intro</h1>
-          <ol>${indexFileList}</ol>
+          <ol>
+            ${indexFileList}
+            <li><a href="https://github.com/manveru/nix-intro">Source</a></li>
+          </ol>
         </body>
       </html>
     '';
