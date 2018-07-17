@@ -46,8 +46,6 @@ in pkgs.stdenv.mkDerivation {
     for built in $builtSlides; do
       dst="$out/$(basename $built | cut -d- -f2)"
       cp -r $built $dst
-      chmod -R +w $dst
-      sed -i 's!<img src="img/!<img src="../../img/!' $dst/index.html
     done
     cp ${index} $out/index.html
   '';
