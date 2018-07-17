@@ -122,15 +122,15 @@ The top-level passes arguments automatically using `callPackage`:
 
 ---
 
-![way_of_a_nix_expression.svg](./img/way_of_a_nix_expression.svg)
+![way_of_a_nix_expression.svg](img/way_of_a_nix_expression.svg)
 
 ---
 
-![what_is_in_a_nix_hash_fixed_input.svg](./img/what_is_in_a_nix_hash_fixed_input.svg)
+![what_is_in_a_nix_hash_fixed_input.svg](img/what_is_in_a_nix_hash_fixed_input.svg)
 
 ---
 
-![what_is_in_a_nix_hash_fixed_output.svg](./img/what_is_in_a_nix_hash_fixed_output.svg)
+![what_is_in_a_nix_hash_fixed_output.svg](img/what_is_in_a_nix_hash_fixed_output.svg)
 
 ## Nix-Shell
 

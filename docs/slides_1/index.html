@@ -1,0 +1,659 @@
+
+
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Introduction To Nix (Part I) - July 2018</title>
+
+		<meta name="description" content="Nix is a powerful package manager for Linux and other Unix systems that makes package management reliable and reproducible.">
+		<meta name="author"      content="Michael Fellinger">
+
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/black.css" id="theme">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+					<h1>Introduction To Nix (Part I)</h1>
+					<h3>July 2018</h3>
+					<p>
+						<small>by Michael Fellinger</small>
+					</p>
+				</section>
+
+        
+        <section>
+          
+<!-- _S9SLIDE_ -->
+
+
+<p><img src="../../img/package_collection.svg" alt="package_collection.svg" /></p>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+<h2 id="a-little-history">A little history</h2>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+
+
+<p><img src="../../img/configuration_management.svg" alt="configuration_management.svg" /></p>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+<h2 id="the-present">The present</h2>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+
+
+<p><img src="../../img/layer_management.svg" alt="layer_management.svg" /></p>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+
+
+<p><img src="../../img/layers_over_time.svg" alt="layers_over_time.svg" /></p>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+
+
+<p><img src="../../img/layers_including_build_tools.svg" alt="layers_including_build_tools.svg" /></p>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+<h2 id="intermezzo">Intermezzo</h2>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+
+
+<p><img src="../../img/intermezzo.svg" alt="intermezzo.svg" /></p>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+
+
+<p><img src="../../img/graphs.svg" alt="graphs.svg" /></p>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+
+
+<p><img src="../../img/graph_development.svg" alt="graph_development.svg" /></p>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+
+
+<p><img src="../../img/bundlerEnv_dependencies.svg" alt="bundlerEnv_dependencies.svg" /></p>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+
+
+<p><img src="../../img/build_parallelization.svg" alt="deploys" /></p>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+<h2 id="functional-programming">Functional programming</h2>
+
+<p>Based on <em>lambda calculus</em> by Alonzo Church (1930s).</p>
+
+<p>Abstraction based on functions (<em>lambda</em>) and reduction.</p>
+
+<ul>
+  <li>No side effects:</li>
+  <li>No mutable variables</li>
+  <li>No loops</li>
+</ul>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+<h2 id="the-nix-programming-language">The Nix Programming Language</h2>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+<h2 id="some-history">Some history</h2>
+
+<p>The Nix package manager was developed by <em>Eelco Dolstra</em> as part of his PhD research in 2004.</p>
+
+<p><a href="https://nixos.org/~eelco/pubs/nspfssd-lisa2004-final.pdf">Nix: A Safe and Policy-Free System for Software Deployment</a></p>
+
+<p>The core of the language has been improved in the following 14 years, eventually
+leading to the creation of NixOS, an operating system entirely built using Nix.</p>
+
+<p><em>Eelco Dolstra</em> is still the head of the project and recently left the academic
+world to work at a Nix consultancy.</p>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+<h2 id="nix-is">Nix is…</h2>
+
+<ul>
+  <li>Reliable</li>
+  <li>Reproducible</li>
+  <li>Great for developers</li>
+  <li>Multi-user, multi-version</li>
+  <li>Source/binary model</li>
+  <li>Portable</li>
+</ul>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+<h2 id="reliable">Reliable</h2>
+
+<p>Nix’s purely functional approach ensures that installing or upgrading one package cannot break other packages.</p>
+
+<p>This is because it won’t overwrite dependencies with newer versions that might cause breakage elsewhere.</p>
+
+<p>It allows you to roll back to previous versions, and ensures that no package is in an inconsistent state during an upgrade.</p>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+<h2 id="reproducible">Reproducible</h2>
+
+<p>Nix builds packages in isolation from each other.</p>
+
+<p>This ensures that they are reproducible and don’t have undeclared dependencies.</p>
+
+<p>So if a package works on one machine, it will also work on another.</p>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+<h2 id="great-for-developers">Great for developers</h2>
+
+<p>Nix makes it trivial to set up and share build environments for your projects, regardless of what programming languages and tools you’re using.</p>
+
+<p>For instance, running the command</p>
+
+<p><code>nix-shell '&lt;nixpkgs&gt;' -A firefox</code></p>
+
+<p>gives you a Bash shell in which all of Firefox’s build-time dependencies are present and all necessary environment variables are set.</p>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+<h2 id="multi-user-multi-version">Multi-user, multi-version</h2>
+
+<p>Nix supports multi-user package management:</p>
+
+<p>Multiple users can share a common Nix store securely, don’t need to have root privileges to install software, and can install and use different versions of a package.</p>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+<h2 id="sourcebinary-model">Source/binary model</h2>
+
+<p>Conceptually, Nix builds packages from source, but can transparently use binaries from a binary cache if available.</p>
+
+<p>This combines the flexibility of source package management with the convenience of binary package management.</p>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+<h2 id="portable">Portable</h2>
+
+<p>Nix runs on Linux, macOS and other systems.</p>
+
+<p>Nixpkgs, the Nix Packages collection, contains ten-thousands of packages, many pre-compiled.</p>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+<h2 id="the-syntax">The Syntax</h2>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+<h2 id="primitive-types">Primitive Types</h2>
+
+<ul>
+  <li>Integer</li>
+  <li>Bool</li>
+  <li>Path</li>
+  <li>String</li>
+  <li>Float</li>
+</ul>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+<h2 id="integer">Integer</h2>
+
+<!-- begin code{} -->
+<div class="code"><pre class="brush: ruby toolbar: false gutter: true">
+     nix-repl&gt; builtins.typeOf 42
+     # &quot;int&quot;
+
+     nix-repl&gt; 21 + 21
+     # 42
+
+     nix-repl&gt; 21 - 42
+     # -21
+
+     nix-repl&gt; 21 * 2
+     # 42
+
+     nix-repl&gt; 41 / 2
+     # 20
+</pre></div>
+<!-- end code -->
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+<h2 id="boolean">Boolean</h2>
+
+<!-- begin code{} -->
+<div class="code"><pre class="brush: ruby toolbar: false gutter: true">
+     nix-repl&gt; builtins.typeOf true
+     # &quot;bool&quot;
+
+     nix-repl&gt; builtins.typeOf false
+     # &quot;bool&quot;
+
+     nix-repl&gt; true &amp;&amp; false
+     # false
+
+     nix-repl&gt; true || false
+     # true
+</pre></div>
+<!-- end code -->
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+<h2 id="path">Path</h2>
+
+<!-- begin code{} -->
+<div class="code"><pre class="brush: ruby toolbar: false gutter: true">
+    nix-repl&gt; builtins.typeOf /tmp
+    # &quot;path&quot;
+
+    nix-repl&gt; /tmp + /build
+    # /tmp/build
+
+    nix-repl&gt; ./.
+    # /home/manveru/github/manveru/scylla
+     
+    nix-repl&gt; ./..
+    # /home/manveru/github/manveru
+</pre></div>
+<!-- end code -->
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+<h2 id="string">String</h2>
+
+<!-- begin code{} -->
+<div class="code"><pre class="brush: ruby toolbar: false gutter: true">
+     nix-repl&gt; builtins.typeOf &quot;hoge&quot;
+     # &quot;string&quot;
+     
+     nix-repl&gt; &quot;hi&quot; + &quot; there&quot; 
+     # &quot;hi there&quot;
+
+     &quot;hi ${toString 2}&quot;
+     # &quot;hi 2&quot;
+</pre></div>
+<!-- end code -->
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+<h2 id="float">Float</h2>
+
+<!-- begin code{} -->
+<div class="code"><pre class="brush: ruby toolbar: false gutter: true">
+     nix-repl&gt; builtins.typeOf 3.1415
+     # &quot;float&quot;
+
+     nix-repl&gt; 1.6 + 1.4
+     # 2.9
+
+     nix-repl&gt; 41.0 / 2
+     # 20.5
+</pre></div>
+<!-- end code -->
+
+<p>IEEE 754 FTW</p>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+<h2 id="composite-types">Composite Types</h2>
+
+<ul>
+  <li>Set</li>
+  <li>List</li>
+  <li>Functions (<em>lambda</em>)</li>
+</ul>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+<h2 id="set">Set</h2>
+
+<!-- begin code{} -->
+<div class="code"><pre class="brush: ruby toolbar: false gutter: true">
+    nix-repl&gt; builtins.typeOf {}
+    # &quot;set&quot;
+
+    nix-repl&gt; { &quot;a b&quot; = &quot;c&quot;; count = 2; }
+    # { &quot;a b&quot; = &quot;c&quot;; count = 2; }
+
+    nix-repl&gt; { count = 2; }.count
+    # 2
+
+    nix-repl&gt; { &quot;a b&quot; = &quot;here&quot;; } // { count = 2; }
+    # { &quot;a b&quot; = &quot;here&quot;; count = 2; }
+</pre></div>
+<!-- end code -->
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+<h2 id="list">List</h2>
+
+<!-- begin code{} -->
+<div class="code"><pre class="brush: ruby toolbar: false gutter: true">
+    nix-repl&gt; builtins.typeOf []
+    # &quot;list&quot;
+
+    nix-repl&gt; [42 &quot;a b&quot; (3 + 6) [2 3 4] {x = 2;}]
+    # [ 42 &quot;a b&quot; 9 [ ... ] { ... } ]
+
+    nix-repl&gt; builtins.elemAt [[2 3 4]] 0
+    # [ 2 3 4 ]
+
+    nix-repl&gt; builtins.length [1 2 3]
+    # 3
+</pre></div>
+<!-- end code -->
+
+<p>Here we see first signs of lazyness, the list is only evaluated at the top
+level.</p>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+<h2 id="lambda">Lambda</h2>
+
+<!-- begin code{} -->
+<div class="code"><pre class="brush: ruby toolbar: false gutter: true">
+    nix-repl&gt; builtins.typeOf (x: x)
+    # &quot;lambda&quot;
+
+    nix-repl&gt; x: x + x
+    # «lambda @ (string):1:1»
+
+    nix-repl&gt; (x: x + x) 21
+    # 42
+
+    nix-repl&gt; let hi = {name, place}: &quot;Hi ${name} in ${place}!&quot;;
+              in hi { name = &quot;Michael&quot;; place = &quot;Austria&quot;; }
+    # &quot;Hi Michael in Austria!&quot;
+
+    nix-repl&gt; let inc = {n, m ? 1}: n + m;
+              in inc { n = 2; }
+    # 3
+</pre></div>
+<!-- end code -->
+
+<p>Functions are also lazy, so you can use them as first-class values and pass them
+around or assign them to variables.</p>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+<h2 id="builtin-lambdas">Builtin lambdas</h2>
+
+<p>The <code>builtins</code> set contains a lot of lambdas that are used to fetch git repos or
+tarballs, bootstrap systems, flow control, and more.</p>
+
+<!-- begin code{} -->
+<div class="code"><pre class="brush: ruby toolbar: false gutter: true">
+    nix-repl&gt; builtins.attrNames builtins
+    # [ &quot;abort&quot; &quot;all&quot; &quot;any&quot; &quot;attrNames&quot;
+    &quot;attrValues&quot; &quot;baseNameOf&quot; &quot;catAttrs&quot; &quot;compareVersions&quot;
+    &quot;concatLists&quot; &quot;concatStringsSep&quot; &quot;currentSystem&quot; &quot;currentTime&quot;
+    &quot;deepSeq&quot; &quot;derivation&quot; &quot;dirOf&quot; &quot;div&quot; &quot;elem&quot;
+    &quot;elemAt&quot; &quot;false&quot;
+    &quot;fetchGit&quot; &quot;fetchMercurial&quot; &quot;fetchTarball&quot; &quot;fetchurl&quot;
+    &quot;filter&quot; &quot;filterSource&quot; &quot;findFile&quot; &quot;foldl&#39;&quot; &quot;import&quot; 
+    &quot;fromJSON&quot; &quot;toJSON&quot; &quot;toXML&quot; 
+    &quot;functionArgs&quot; &quot;getAttr&quot; &quot;getEnv&quot; &quot;hasAttr&quot; &quot;hasContext&quot;
+    &quot;isAttrs&quot; &quot;isBool&quot; &quot;isFloat&quot; &quot;isFunction&quot; &quot;isInt&quot;
+    ... **
+</pre></div>
+<!-- end code -->
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+<h2 id="summary">Summary</h2>
+
+<ul>
+  <li>Packages are defined as Nix expressions</li>
+  <li>Atomic upgrades and rollbacks</li>
+  <li>Several versions of the same package in the same system</li>
+  <li>Unprivileged package installation</li>
+  <li>Manage user environments (dotfiles, packages, etc.)</li>
+  <li>Provides isolated environments</li>
+  <li>Reproducible builds from source</li>
+  <li>Cache available to get pre-compiled packages</li>
+  <li>Safe Garbage collection</li>
+  <li>Over 40.000 up-to-date packages with 830 maintainers</li>
+</ul>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+<h2 id="some-links-to-start-with">Some Links to start with</h2>
+
+<p><a href="https://nixos.org/nix">Nix</a></p>
+
+<p><a href="https://nixos.org/nixos/nix-pills/index.html">Nix Pills</a></p>
+
+<p><a href="https://nixos.org/nix/manual/">Nix Manual</a></p>
+
+<p><a href="https://github.com/nixos/nixpkgs">Nix Packages collection</a></p>
+
+<p><a href="http://howoldis.herokuapp.com/">How up to date are NixOS channels?</a></p>
+
+<p><a href="https://github.com/LnL7/nix-darwin">nix-darwin</a></p>
+
+        </section>
+        
+
+			</div>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+
+			// More info https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+				// More info https://github.com/hakimel/reveal.js#dependencies
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
+					{ src: 'plugin/notes/notes.js', async: true }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>

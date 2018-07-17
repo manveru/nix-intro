@@ -6,49 +6,49 @@ theme: black
 
 ---
 
-![package_collection.svg](./img/package_collection.svg)
+![package_collection.svg](img/package_collection.svg)
 
 ## A little history
 
 ---
 
-![configuration_management.svg](./img/configuration_management.svg)
+![configuration_management.svg](img/configuration_management.svg)
 
 ## The present
 
 ---
 
-![layer_management.svg](./img/layer_management.svg)
+![layer_management.svg](img/layer_management.svg)
 
 ---
 
-![layers_over_time.svg](./img/layers_over_time.svg)
+![layers_over_time.svg](img/layers_over_time.svg)
 
 ---
 
-![layers_including_build_tools.svg](./img/layers_including_build_tools.svg)
+![layers_including_build_tools.svg](img/layers_including_build_tools.svg)
 
 ## Intermezzo
 
 ---
 
-![intermezzo.svg](./img/intermezzo.svg)
+![intermezzo.svg](img/intermezzo.svg)
 
 ---
 
-![graphs.svg](./img/graphs.svg)
+![graphs.svg](img/graphs.svg)
 
 ---
 
-![graph_development.svg](./img/graph_development.svg)
+![graph_development.svg](img/graph_development.svg)
 
 ---
 
-![bundlerEnv_dependencies.svg](./img/bundlerEnv_dependencies.svg)
+![bundlerEnv_dependencies.svg](img/bundlerEnv_dependencies.svg)
 
 ---
 
-![deploys](./img/build_parallelization.svg)
+![deploys](img/build_parallelization.svg)
 
 ## Functional programming
 
