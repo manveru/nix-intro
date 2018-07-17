@@ -12,16 +12,7 @@ let
     # "italian" = "it_IT.UTF-8";
   };
 
-  hello = stdenv.mkDerivation rec {
-    name = "hello-2.10";
-
-    src = fetchurl {
-      url = "mirror://gnu/hello/${name}.tar.gz";
-      sha256 = "0ssi1wpaf7plaswqqjwigppsg5fyh99vdlb9kzl7c9lng89ndq1i";
-    };
-
-    doCheck = true;
-  };
+  hello = import ../gnu-hello { inherit stdenv fetchurl; };
 
   greeter = { language ? "english", locale ? "en_US.UTF-8" }:
     stdenv.mkDerivation {
