@@ -4,7 +4,7 @@ require 'fileutils'
 
 executables = {}
 ENV["PATH"].split(":").each do |path|
-  executables[File.basename(path)] = "#!/usr/bin/env #{path}"
+  executables[File.basename(path)] = "#!#{path}"
 end
 
 bin = File.join(ENV["out"], "bin")

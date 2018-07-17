@@ -216,7 +216,7 @@ Nixpkgs, the Nix Packages collection, contains ten-thousands of packages, many p
      # "float"
 
      nix-repl> 1.6 + 1.4
-     # 2.9
+     # 3
 
      nix-repl> 41.0 / 2
      # 20.5

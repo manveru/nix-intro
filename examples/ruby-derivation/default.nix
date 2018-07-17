@@ -17,8 +17,10 @@ in
 derivation {
   name = "hello";
   system = builtins.currentSystem;
-  builder = "${ruby}/bin/ruby";
+
   PATH = "${slimRuby}/bin/ruby";
-  args = [ ./builder.rb ];
   src = ./hello.rb;
+
+  builder = "${ruby}/bin/ruby";
+  args = [ ./builder.rb ];
 }
