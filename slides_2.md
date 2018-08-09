@@ -1,282 +1,240 @@
 title: Introduction To Nix (Part II)
-subtitle: July 2018
+subtitle: August 2018
 author: Michael Fellinger
 description: Nix is a powerful package manager for Linux and other Unix systems that makes package management reliable and reproducible.
 theme: black
 
+
+## In this Talk
+
+We will explore Nix
+
+
+## What you will learn
+
+* Using `nix repl`
+* Doing our first `nix build`
+* Managing environments using `nix-env`
+* Developing in `nix-shell`
+
+
 ## Getting started
 
-If you're brave enough, you can install the single-user version of Nix.
+For our first session, we'll simply run Nix in a Docker container, so we don't
+spend too much time on setup due to our different system configurations.
 
-    curl https://nixos.org/nix/install | sh
-    source ~/.nix-profile/etc/profile.d/nix.sh
-    nix-channel --add \
-      https://nixos.org/channels/nixpkgs-18.03-darwin nixpkgs
-    nix-channel --update
+    docker volume create nix_store
+    docker run -v nix_store:/nix/store --rm -it lnl7/nix
 
-## First steps
+More information about this image are at https://github.com/LnL7/nix-docker
 
-    nix-channel --add https://nixos.org/channels/nixpkgs-18.03-darwin nixpkgs
-    nix-channel --update
+## Starting the Nix REPL
 
-    nix-env -iA nixpkgs.hello
+This makes sure you'll have access to all packages in the `nixpkgs` repository.
 
-    nix-env -u hello
+    nix repl '<nixpkgs>'
 
-    nix-env --list-generations
 
-    nix-env --rollback
+## Getting some help
+
+    bash-4.4# nix repl '<nixpkgs>'
+    Welcome to Nix version 2.0.4. Type :? for help.
+
+    Loading '<nixpkgs>'...
+    Added 9189 variables.
+
+    nix-repl> :?
+    The following commands are available:
+
+      <expr>        Evaluate and print expression
+      <x> = <expr>  Bind expression to variable
+      :a <expr>     Add attributes from resulting set to scope
+      :b <expr>     Build derivation
+      :i <expr>     Build derivation, then install result into current profile
+      :l <path>     Load Nix expression and add it to scope
+      :p <expr>     Evaluate and print expression recursively
+      :q            Exit nix-repl
+      :r            Reload all files
+      :s <expr>     Build dependencies of derivation, then start nix-shell
+      :t <expr>     Describe result of evaluation
+      :u <expr>     Build derivation, then start nix-shell
+
+
+## What does this mean?
+
+Let me guide you through each command with an example
+
+
+## Evaluate and print expression
+
+    nix-repl> 1
+    1
+
+    nix-repl> "Hello, World!"
+    "Hello, World!"
+
+    nix-repl> ["lists"]
+    [ "lists" ]
+
+    nix-repl> { this = "set"; }
+    { this = "set"; }
+
+
+## Bind expression to variable
+
+    nix-repl> a = 1
+
+    nix-repl> b = 2
+
+    nix-repl> a + b
+    3
+
+
+## Add attributes from resulting set to scope
+
+    nix-repl> :a builtins
+    Added 95 variables.
+
+    nix-repl> attrNames { this = "set"; }
+    [ "this" ]
+
+    nix-repl> length [1]
+    1
+
+## Build derivation
+
+    nix-repl> :b hello
+    these paths will be fetched (0.04 MiB download, 0.19 MiB unpacked):
+      /nix/store/aq3byv8z9ax5zqbqi5b73q06yq8gfl99-hello-2.10
+    copying path '/nix/store/aq3byv8z9ax5zqbqi5b73q06yq8gfl99-hello-2.10' from 'https://cache.nixos.org'...
+    warning: you did not specify '--add-root'; the result might be removed by the garbage collector
+    /nix/store/aq3byv8z9ax5zqbqi5b73q06yq8gfl99-hello-2.10
+
+    this derivation produced the following outputs:
+      out -> /nix/store/aq3byv8z9ax5zqbqi5b73q06yq8gfl99-hello-2.10
+
+
+
+    bash-4.4# /nix/store/aq3by*-hello-2.10/bin/hello 
+    Hello, world!
+
+
+## Install result into current profile
+
+    nix-repl> :i hello
+    installing 'hello-2.10.drv'
+    these paths will be fetched (0.04 MiB download, 0.19 MiB unpacked):
+      /nix/store/aq3byv8z9ax5zqbqi5b73q06yq8gfl99-hello-2.10
+    copying path '/nix/store/aq3byv8z9ax5zqbqi5b73q06yq8gfl99-hello-2.10' from 'https://cache.nixos.org'...
+    building '/nix/store/ar8sjvpp0i0v8m2fn77fmw0kj1808w51-user-environment.drv'...
+    created 2 symlinks in user environment
+
+    nix-repl> 
+    bash-4.4# hello
+    Hello, world!
+
+
+## Load Nix expression and add it to scope
+
+In a fresh `nix repl`:
+
+    bash-4.4# nix repl            
+    Welcome to Nix version 2.0.4. Type :? for help.
+
+    nix-repl> :l <nixpkgs>
+    Added 9189 variables.
+
+    nix-repl> hello
+    «derivation /nix/store/m5chcjbj7p08sy8adqpkr2rzf6rmdfh6-hello-2.10.drv»
+
+
+## Evaluate and print expression recursively
+
+    nix-repl> x = { a = { b = 2; }; }
+
+    nix-repl> x
+    { a = { ... }; }
+
+    nix-repl> :p x
+    { a = { b = 2; }; }
+
+
+## Build derivation, then start nix-shell
+
+    nix-repl> :u hello
+
+    [nix-shell:/]# type -f hello
+    hello is hashed (/nix/store/aq3byv8z9ax5zqbqi5b73q06yq8gfl99-hello-2.10/bin/hello)
+
+    [nix-shell:/]# type -f gcc
+    bash: type: gcc: not found
     
-    nix-env -e hello
-    
-    nix-collect-garbage
+In this shell we have access to `gcc`, `glibc`, and `binutils`
 
-## Nix Store
 
-<% code do %>
-    /nix/store/rqjf7a7i5wh7d0mryy69mzy3nr511acs-home-manager-path/bin/git
+## Build dependencies of derivation, then start nix-shell
 
-    /nix/store/6p18brdpbj91snn4zmg9dwb4yyaf1501-crystal-0.25.0/
-    ├── bin
-    │   └── crystal
-    ├── lib
-    │   └── crystal
-    └── share
-        ├── bash-completion
-        ├── doc
-        ├── licenses
-        ├── man
-        └── zsh
-<% end %>
-        
-## Environments
+    nix-repl> :s hello
 
-* System wide
-* User owned
-* Project specific
-* Service specific
+    [nix-shell:/]# type -f hello
+    bash: type: hello: not found
 
-All reproducible and can reuse each others code!
+    [nix-shell:/]# type -f gcc
+    gcc is /nix/store/38picpf5cl6d7lj38h8191vmxlxjbgq3-gcc-wrapper-7.3.0/bin/gcc
 
-## Platform independent
+In this shell we have access to the built `hello`, but not its dependencies anymore.
 
-Nix runs on Linux (not only NixOS), MacOS, BSD, Windows, and more.
-NixOS has been ported to many platforms, so it runs on i686, x86_64, MIPS, ARM, and AArch64
-So you can use it on anything from Supercomputers to your Router, also MacBooks and Rasberry Pis.
+## Describe result of evaluation
 
-You don't have to run NixOS to use Nix, although that gives you many benefits.
+    nix-repl> :t hello.outPath
+    a string with context
 
-## What's a Nix Package?
 
-* A Nix source file is a function.
-* The function returns "derivations"
-* Dependencies are given as parameters to the function
+## On to nix-shell
 
-## Calling Packages
+Let's run a command only once without installing it
 
-The top-level passes arguments automatically using `callPackage`:
+    nix-shell -p nix-info --run 'nix-info -m'
+    ....
+     - system: `"x86_64-linux"`
+     - host os: `Linux 4.14.55`
+     - multi-user?: `yes`
+     - sandbox: `no`
+     - version: `nix-env (Nix) 2.0.4`
+     - nixpkgs: `/nix/store/1a7blwzdwsafkw1x5fql61ddbv1v3r25-nixpkgs-unstable-2018-07-17`
 
-<% code do %>
-    cowsay = callPackage ./pkgs/cowsay {};
-<% end %>
-    
-## The function
 
-    { stdenv, fetchgit, perl }:
+## Development environment
 
-    stdenv.mkDerivation {
-      name = "cowsay-3.03+dfsg1-16";
+    cd /root
+    mkdir first
+    cd first
+    vim shell.nix
 
-      src = fetchgit {
-        url = https://anonscm.debian.org/git/collab-maint/cowsay.git;
-        rev = "acb946c166fa3b9526b9c471ef1330f9f89f9c8b";
-        sha256 = "1ji66nrdcc8sh79hwils3nbaj897s352r5wp7kzjwiym8bm2azk6";
-      };
 
-      buildInputs = [ perl ];
+## Our first shell.nix
 
-      installPhase = ''
-        bash ./install.sh $out
-      '';
-
-      meta = {
-        description = "A program which generates ASCII pictures of a cow with a message";
-        homepage = http://www.nog.net/~tony/warez/cowsay.shtml;
-        platforms = stdenv.lib.platforms.all;
-        maintainers = [ stdenv.lib.maintainers.rob ];
-      };
-    }
-
-## Writing our first Nix package
-
-    { stdenv }:
-
-    stdenv.mkDerivation {
-      name = "hello";
-      unpackPhase = "true";
-      src = ./hello.rb;
-      installPhase = ''
-        install -m 0744 -D $src $out/bin/hello
-      '';
-    }
-
----
-
-![way_of_a_nix_expression.svg](img/way_of_a_nix_expression.svg)
-
----
-
-![what_is_in_a_nix_hash_fixed_input.svg](img/what_is_in_a_nix_hash_fixed_input.svg)
-
----
-
-![what_is_in_a_nix_hash_fixed_output.svg](img/what_is_in_a_nix_hash_fixed_output.svg)
-
-## Nix-Shell
-
-On-demand project specific development environments:
-
-    with import (fetchTarball {
-      url = https://github.com/NixOS/nixpkgs-channels/archive/98792fe35152d3470929b40ad83359b605233a76.tar.gz;
-      sha256 = "1p52zqpp924nwcp534whznrwsgrfi8mas0n1wsrrh6kpsxmlh64f";
-    }) {};
+    with import <nixpkgs> {};
     mkShell {
-      buildInputs = [
-        ruby_2_5
-        nodejs-9_x
-        go_1_10
-        elixir
-        libxml2
-      ];
+      buildInputs = [ tcl ];
     }
 
-## Nix-Shell in practice
 
-So the next time you work on a project, you get the exact same version of all
-dependencies as everybody else and don't have to install anything manually.
+## Now invoke the file
 
-This is extremely useful, especially when you come back a year later and
-completely forgot what's needed (no fear of forgetting to updating docs).
+`nix-shell` will automatically look for a `shell.nix` or `default.nix` in the
+current directory and put you at the first of its "phases".
 
-## Nix-Shell & Direnv
+    bash-4.4# nix-shell 
 
-The dream-team for people who constantly switch between projects.
+    [nix-shell:~/first]# echo $phases
+    nobuildPhase
 
-Given a `.envrc`:
-
-    use nix
+    [nix-shell:~/first]# which tclsh
+    /nix/store/z6jc7mvhiziwy4mf86lsm0wlq1aaqdzz-tcl-8.6.6/bin/tclsh
     
-You can simply change into a directory and you'll automatically be in a
-nix-shell.
+    [nix-shell:~/first]# tclsh
+    % puts "Hello, World!"
+    Hello, World!
 
-## nix-darwin
 
-Nix modules for darwin, `/etc/nixos/configuration.nix` for macOS.
-
-    { pkgs, ... }:
-
-    {
-      shellAliases = with pkgs; {
-        v = "${neovim}/bin/nvim";
-        g = "${gitFull}/bin/git"
-        c = "clear";
-      };
-
-      environment.systemPackages = with pkgs; {
-        curl di direnv emacs jq htop
-      };
-
-      environment.variables = {
-        EDITOR = "nvim";
-        LESS = "-M";
-      };
-
-      system.default.dock.autohide = true;
-      system.defaults.finder.AppleShowAllExtensions = true;
-      system.defaults.trackpad.Clicking = true;
-      ...
-    }
-
-## NixOps
-
-    {
-      server_alpha = {
-        deployment.targetEnv = "virtualbox";
-        services = {
-          nginx.enable = true;
-          kubernetes.enable = true;
-          redis = {
-            enable = true;
-            port = 777;
-          }
-        };
-        fileSystems."/data" = {
-          fsType = "nfs4";
-          device = "fileserver:/";
-        };
-      }
-      fileserver = {
-        deployment.targetEnv = "virtualbox";
-        services.nfs.server.enable = true;
-        services.nfs.server.exports = ''
-          /exported/directory server_alpha
-        '';
-      };
-    }
-
-    nixops created -d simple network.nix
-    nixops deploy -d simple
-
-## NixOps Deploys To
-
-* Amazon EC2 instances and other resources (such as S3 buckets, EC2 key pairs, elastic IPs, etc.).
-* Google Cloud Engine instances and other resources (such as networks, firewalls, IPs, disks, etc.).
-* VirtualBox virtual machines.
-* Hetzner machines.
-* NixOS containers.
-* Any machine already running NixOS.
-
-## home-manager
-
-Can manage your dotfiles and applications, here's a little sample of my config:
-
-    { pkgs, ... }:
-    {
-      home.packages = with pkgs; [
-        tree ripgrep ruby chromium elixir go fzy
-      ];
-      programs.zsh = {
-        enable = true;
-        enableAutosuggestions = true;
-        enableCompletion = true;
-        history = {
-          ignoreDups = true;
-          save = 1000000;
-          size = 1000000;
-        };
-        shellAliases = {
-          v = "vim";
-          c = "clear";
-          open = "xdg-open";
-        };
-        oh-my-zsh = {
-          enable = true;
-          theme = "flazz";
-          plugins = [
-            "docker"
-            "git"
-            "man"
-            "nyan"
-            "ssh-agent"
-            "sudo"
-            "vi-mode"
-            "yarn"
-            "zsh-navigation-tools"
-            "systemd"
-            "tmux"
-          ];
-        };
-      };
-    }
-
-more at https://github.com/manveru/dotfiles

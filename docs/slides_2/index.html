@@ -6,7 +6,7 @@
 	<head>
 		<meta charset="utf-8">
 
-		<title>Introduction To Nix (Part II) - July 2018</title>
+		<title>Introduction To Nix (Part II) - August 2018</title>
 
 		<meta name="description" content="Nix is a powerful package manager for Linux and other Unix systems that makes package management reliable and reproducible.">
 		<meta name="author"      content="Michael Fellinger">
@@ -44,7 +44,7 @@
 			<div class="slides">
 				<section>
 					<h1>Introduction To Nix (Part II)</h1>
-					<h3>July 2018</h3>
+					<h3>August 2018</h3>
 					<p>
 						<small>by Michael Fellinger</small>
 					</p>
@@ -54,15 +54,53 @@
         <section>
           
 <!-- _S9SLIDE_ -->
+<h2 id="in-this-talk">In this Talk</h2>
+
+<p>We will explore Nix</p>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+<h2 id="what-you-will-learn">What you will learn</h2>
+
+<ul>
+  <li>Using <code>nix repl</code></li>
+  <li>Doing our first <code>nix build</code></li>
+  <li>Managing environments using <code>nix-env</code></li>
+  <li>Developing in <code>nix-shell</code></li>
+</ul>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
 <h2 id="getting-started">Getting started</h2>
 
-<p>If you’re brave enough, you can install the single-user version of Nix.</p>
+<p>For our first session, we’ll simply run Nix in a Docker container, so we don’t
+spend too much time on setup due to our different system configurations.</p>
 
-<pre><code>curl https://nixos.org/nix/install | sh
-source ~/.nix-profile/etc/profile.d/nix.sh
-nix-channel --add \
-  https://nixos.org/channels/nixpkgs-18.03-darwin nixpkgs
-nix-channel --update
+<pre><code>docker volume create nix_store
+docker run -v nix_store:/nix/store --rm -it lnl7/nix
+</code></pre>
+
+<p>More information about this image are at https://github.com/LnL7/nix-docker</p>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+<h2 id="starting-the-nix-repl">Starting the Nix REPL</h2>
+
+<p>This makes sure you’ll have access to all packages in the <code>nixpkgs</code> repository.</p>
+
+<pre><code>nix repl '&lt;nixpkgs&gt;'
 </code></pre>
 
 
@@ -71,22 +109,29 @@ nix-channel --update
         
         <section>
           <!-- _S9SLIDE_ -->
-<h2 id="first-steps">First steps</h2>
+<h2 id="getting-some-help">Getting some help</h2>
 
-<pre><code>nix-channel --add https://nixos.org/channels/nixpkgs-18.03-darwin nixpkgs
-nix-channel --update
+<pre><code>bash-4.4# nix repl '&lt;nixpkgs&gt;'
+Welcome to Nix version 2.0.4. Type :? for help.
 
-nix-env -iA nixpkgs.hello
+Loading '&lt;nixpkgs&gt;'...
+Added 9189 variables.
 
-nix-env -u hello
+nix-repl&gt; :?
+The following commands are available:
 
-nix-env --list-generations
-
-nix-env --rollback
-
-nix-env -e hello
-
-nix-collect-garbage
+  &lt;expr&gt;        Evaluate and print expression
+  &lt;x&gt; = &lt;expr&gt;  Bind expression to variable
+  :a &lt;expr&gt;     Add attributes from resulting set to scope
+  :b &lt;expr&gt;     Build derivation
+  :i &lt;expr&gt;     Build derivation, then install result into current profile
+  :l &lt;path&gt;     Load Nix expression and add it to scope
+  :p &lt;expr&gt;     Evaluate and print expression recursively
+  :q            Exit nix-repl
+  :r            Reload all files
+  :s &lt;expr&gt;     Build dependencies of derivation, then start nix-shell
+  :t &lt;expr&gt;     Describe result of evaluation
+  :u &lt;expr&gt;     Build derivation, then start nix-shell
 </code></pre>
 
 
@@ -95,25 +140,9 @@ nix-collect-garbage
         
         <section>
           <!-- _S9SLIDE_ -->
-<h2 id="nix-store">Nix Store</h2>
+<h2 id="what-does-this-mean">What does this mean?</h2>
 
-<!-- begin code{} -->
-<div class="code"><pre class="brush: ruby toolbar: false gutter: true">
-    /nix/store/rqjf7a7i5wh7d0mryy69mzy3nr511acs-home-manager-path/bin/git
-
-    /nix/store/6p18brdpbj91snn4zmg9dwb4yyaf1501-crystal-0.25.0/
-    ├── bin
-    │   └── crystal
-    ├── lib
-    │   └── crystal
-    └── share
-        ├── bash-completion
-        ├── doc
-        ├── licenses
-        ├── man
-        └── zsh
-</pre></div>
-<!-- end code -->
+<p>Let me guide you through each command with an example</p>
 
 
 
@@ -121,93 +150,19 @@ nix-collect-garbage
         
         <section>
           <!-- _S9SLIDE_ -->
-<h2 id="environments">Environments</h2>
+<h2 id="evaluate-and-print-expression">Evaluate and print expression</h2>
 
-<ul>
-  <li>System wide</li>
-  <li>User owned</li>
-  <li>Project specific</li>
-  <li>Service specific</li>
-</ul>
+<pre><code>nix-repl&gt; 1
+1
 
-<p>All reproducible and can reuse each others code!</p>
+nix-repl&gt; "Hello, World!"
+"Hello, World!"
 
+nix-repl&gt; ["lists"]
+[ "lists" ]
 
-
-        </section>
-        
-        <section>
-          <!-- _S9SLIDE_ -->
-<h2 id="platform-independent">Platform independent</h2>
-
-<p>Nix runs on Linux (not only NixOS), MacOS, BSD, Windows, and more.
-NixOS has been ported to many platforms, so it runs on i686, x86_64, MIPS, ARM, and AArch64
-So you can use it on anything from Supercomputers to your Router, also MacBooks and Rasberry Pis.</p>
-
-<p>You don’t have to run NixOS to use Nix, although that gives you many benefits.</p>
-
-
-
-        </section>
-        
-        <section>
-          <!-- _S9SLIDE_ -->
-<h2 id="whats-a-nix-package">What’s a Nix Package?</h2>
-
-<ul>
-  <li>A Nix source file is a function.</li>
-  <li>The function returns “derivations”</li>
-  <li>Dependencies are given as parameters to the function</li>
-</ul>
-
-
-
-        </section>
-        
-        <section>
-          <!-- _S9SLIDE_ -->
-<h2 id="calling-packages">Calling Packages</h2>
-
-<p>The top-level passes arguments automatically using <code>callPackage</code>:</p>
-
-<!-- begin code{} -->
-<div class="code"><pre class="brush: ruby toolbar: false gutter: true">
-    cowsay = callPackage ./pkgs/cowsay {};
-</pre></div>
-<!-- end code -->
-
-
-
-        </section>
-        
-        <section>
-          <!-- _S9SLIDE_ -->
-<h2 id="the-function">The function</h2>
-
-<pre><code>{ stdenv, fetchgit, perl }:
-
-stdenv.mkDerivation {
-  name = "cowsay-3.03+dfsg1-16";
-
-  src = fetchgit {
-    url = https://anonscm.debian.org/git/collab-maint/cowsay.git;
-    rev = "acb946c166fa3b9526b9c471ef1330f9f89f9c8b";
-    sha256 = "1ji66nrdcc8sh79hwils3nbaj897s352r5wp7kzjwiym8bm2azk6";
-  };
-
-  buildInputs = [ perl ];
-
-  installPhase = ''
-    bash ./install.sh $out
-  '';
-
-  meta = {
-    description = "A program which generates ASCII pictures of a cow with a message";
-    homepage = http://www.nog.net/~tony/warez/cowsay.shtml;
-    platforms = stdenv.lib.platforms.all;
-    maintainers = [ stdenv.lib.maintainers.rob ];
-  };
-}
+nix-repl&gt; { this = "set"; }
+{ this = "set"; }
 </code></pre>
 
 
@@ -216,18 +171,14 @@ stdenv.mkDerivation {
         
         <section>
           <!-- _S9SLIDE_ -->
-<h2 id="writing-our-first-nix-package">Writing our first Nix package</h2>
+<h2 id="bind-expression-to-variable">Bind expression to variable</h2>
 
-<pre><code>{ stdenv }:
+<pre><code>nix-repl&gt; a = 1
 
-stdenv.mkDerivation {
-  name = "hello";
-  unpackPhase = "true";
-  src = ./hello.rb;
-  installPhase = ''
-    install -m 0744 -D $src $out/bin/hello
-  '';
-}
+nix-repl&gt; b = 2
+
+nix-repl&gt; a + b
+3
 </code></pre>
 
 
@@ -236,29 +187,17 @@ stdenv.mkDerivation {
         
         <section>
           <!-- _S9SLIDE_ -->
+<h2 id="add-attributes-from-resulting-set-to-scope">Add attributes from resulting set to scope</h2>
 
+<pre><code>nix-repl&gt; :a builtins
+Added 95 variables.
 
-<p><img src="img/way_of_a_nix_expression.svg" alt="way_of_a_nix_expression.svg" /></p>
+nix-repl&gt; attrNames { this = "set"; }
+[ "this" ]
 
-
-
-        </section>
-        
-        <section>
-          <!-- _S9SLIDE_ -->
-
-
-<p><img src="img/what_is_in_a_nix_hash_fixed_input.svg" alt="what_is_in_a_nix_hash_fixed_input.svg" /></p>
-
-
-
-        </section>
-        
-        <section>
-          <!-- _S9SLIDE_ -->
-
-
-<p><img src="img/what_is_in_a_nix_hash_fixed_output.svg" alt="what_is_in_a_nix_hash_fixed_output.svg" /></p>
+nix-repl&gt; length [1]
+1
+</code></pre>
 
 
 
@@ -266,22 +205,177 @@ stdenv.mkDerivation {
         
         <section>
           <!-- _S9SLIDE_ -->
-<h2 id="nix-shell">Nix-Shell</h2>
+<h2 id="build-derivation">Build derivation</h2>
 
-<p>On-demand project specific development environments:</p>
+<pre><code>nix-repl&gt; :b hello
+these paths will be fetched (0.04 MiB download, 0.19 MiB unpacked):
+  /nix/store/aq3byv8z9ax5zqbqi5b73q06yq8gfl99-hello-2.10
+copying path '/nix/store/aq3byv8z9ax5zqbqi5b73q06yq8gfl99-hello-2.10' from 'https://cache.nixos.org'...
+warning: you did not specify '--add-root'; the result might be removed by the garbage collector
+/nix/store/aq3byv8z9ax5zqbqi5b73q06yq8gfl99-hello-2.10
 
-<pre><code>with import (fetchTarball {
-  url = https://github.com/NixOS/nixpkgs-channels/archive/98792fe35152d3470929b40ad83359b605233a76.tar.gz;
-  sha256 = "1p52zqpp924nwcp534whznrwsgrfi8mas0n1wsrrh6kpsxmlh64f";
-}) {};
+this derivation produced the following outputs:
+  out -&gt; /nix/store/aq3byv8z9ax5zqbqi5b73q06yq8gfl99-hello-2.10
+
+
+
+bash-4.4# /nix/store/aq3by*-hello-2.10/bin/hello 
+Hello, world!
+</code></pre>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+<h2 id="install-result-into-current-profile">Install result into current profile</h2>
+
+<pre><code>nix-repl&gt; :i hello
+installing 'hello-2.10.drv'
+these paths will be fetched (0.04 MiB download, 0.19 MiB unpacked):
+  /nix/store/aq3byv8z9ax5zqbqi5b73q06yq8gfl99-hello-2.10
+copying path '/nix/store/aq3byv8z9ax5zqbqi5b73q06yq8gfl99-hello-2.10' from 'https://cache.nixos.org'...
+building '/nix/store/ar8sjvpp0i0v8m2fn77fmw0kj1808w51-user-environment.drv'...
+created 2 symlinks in user environment
+
+nix-repl&gt; 
+bash-4.4# hello
+Hello, world!
+</code></pre>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+<h2 id="load-nix-expression-and-add-it-to-scope">Load Nix expression and add it to scope</h2>
+
+<p>In a fresh <code>nix repl</code>:</p>
+
+<pre><code>bash-4.4# nix repl            
+Welcome to Nix version 2.0.4. Type :? for help.
+
+nix-repl&gt; :l &lt;nixpkgs&gt;
+Added 9189 variables.
+
+nix-repl&gt; hello
+«derivation /nix/store/m5chcjbj7p08sy8adqpkr2rzf6rmdfh6-hello-2.10.drv»
+</code></pre>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+<h2 id="evaluate-and-print-expression-recursively">Evaluate and print expression recursively</h2>
+
+<pre><code>nix-repl&gt; x = { a = { b = 2; }; }
+
+nix-repl&gt; x
+{ a = { ... }; }
+
+nix-repl&gt; :p x
+{ a = { b = 2; }; }
+</code></pre>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+<h2 id="build-derivation-then-start-nix-shell">Build derivation, then start nix-shell</h2>
+
+<pre><code>nix-repl&gt; :u hello
+
+[nix-shell:/]# type -f hello
+hello is hashed (/nix/store/aq3byv8z9ax5zqbqi5b73q06yq8gfl99-hello-2.10/bin/hello)
+
+[nix-shell:/]# type -f gcc
+bash: type: gcc: not found
+</code></pre>
+
+<p>In this shell we have access to <code>gcc</code>, <code>glibc</code>, and <code>binutils</code></p>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+<h2 id="build-dependencies-of-derivation-then-start-nix-shell">Build dependencies of derivation, then start nix-shell</h2>
+
+<pre><code>nix-repl&gt; :s hello
+
+[nix-shell:/]# type -f hello
+bash: type: hello: not found
+
+[nix-shell:/]# type -f gcc
+gcc is /nix/store/38picpf5cl6d7lj38h8191vmxlxjbgq3-gcc-wrapper-7.3.0/bin/gcc
+</code></pre>
+
+<p>In this shell we have access to the built <code>hello</code>, but not its dependencies anymore.</p>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+<h2 id="describe-result-of-evaluation">Describe result of evaluation</h2>
+
+<pre><code>nix-repl&gt; :t hello.outPath
+a string with context
+</code></pre>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+<h2 id="on-to-nix-shell">On to nix-shell</h2>
+
+<p>Let’s run a command only once without installing it</p>
+
+<pre><code>nix-shell -p nix-info --run 'nix-info -m'
+....
+ - system: `"x86_64-linux"`
+ - host os: `Linux 4.14.55`
+ - multi-user?: `yes`
+ - sandbox: `no`
+ - version: `nix-env (Nix) 2.0.4`
+ - nixpkgs: `/nix/store/1a7blwzdwsafkw1x5fql61ddbv1v3r25-nixpkgs-unstable-2018-07-17`
+</code></pre>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+<h2 id="development-environment">Development environment</h2>
+
+<pre><code>cd /root
+mkdir first
+cd first
+vim shell.nix
+</code></pre>
+
+
+
+        </section>
+        
+        <section>
+          <!-- _S9SLIDE_ -->
+<h2 id="our-first-shellnix">Our first shell.nix</h2>
+
+<pre><code>with import &lt;nixpkgs&gt; {};
 mkShell {
-  buildInputs = [
-    ruby_2_5
-    nodejs-9_x
-    go_1_10
-    elixir
-    libxml2
-  ];
+  buildInputs = [ tcl ];
 }
 </code></pre>
 
@@ -291,172 +385,24 @@ mkShell {
         
         <section>
           <!-- _S9SLIDE_ -->
-<h2 id="nix-shell-in-practice">Nix-Shell in practice</h2>
+<h2 id="now-invoke-the-file">Now invoke the file</h2>
 
-<p>So the next time you work on a project, you get the exact same version of all
-dependencies as everybody else and don’t have to install anything manually.</p>
+<p><code>nix-shell</code> will automatically look for a <code>shell.nix</code> or <code>default.nix</code> in the
+current directory and put you at the first of its “phases”.</p>
 
-<p>This is extremely useful, especially when you come back a year later and
-completely forgot what’s needed (no fear of forgetting to updating docs).</p>
+<pre><code>bash-4.4# nix-shell 
 
+[nix-shell:~/first]# echo $phases
+nobuildPhase
 
+[nix-shell:~/first]# which tclsh
+/nix/store/z6jc7mvhiziwy4mf86lsm0wlq1aaqdzz-tcl-8.6.6/bin/tclsh
 
-        </section>
-        
-        <section>
-          <!-- _S9SLIDE_ -->
-<h2 id="nix-shell--direnv">Nix-Shell &amp; Direnv</h2>
-
-<p>The dream-team for people who constantly switch between projects.</p>
-
-<p>Given a <code>.envrc</code>:</p>
-
-<pre><code>use nix
+[nix-shell:~/first]# tclsh
+% puts "Hello, World!"
+Hello, World!
 </code></pre>
 
-<p>You can simply change into a directory and you’ll automatically be in a
-nix-shell.</p>
-
-
-
-        </section>
-        
-        <section>
-          <!-- _S9SLIDE_ -->
-<h2 id="nix-darwin">nix-darwin</h2>
-
-<p>Nix modules for darwin, <code>/etc/nixos/configuration.nix</code> for macOS.</p>
-
-<pre><code>{ pkgs, ... }:
-
-{
-  shellAliases = with pkgs; {
-    v = "${neovim}/bin/nvim";
-    g = "${gitFull}/bin/git"
-    c = "clear";
-  };
-
-  environment.systemPackages = with pkgs; {
-    curl di direnv emacs jq htop
-  };
-
-  environment.variables = {
-    EDITOR = "nvim";
-    LESS = "-M";
-  };
-
-  system.default.dock.autohide = true;
-  system.defaults.finder.AppleShowAllExtensions = true;
-  system.defaults.trackpad.Clicking = true;
-  ...
-}
-</code></pre>
-
-
-
-        </section>
-        
-        <section>
-          <!-- _S9SLIDE_ -->
-<h2 id="nixops">NixOps</h2>
-
-<pre><code>{
-  server_alpha = {
-    deployment.targetEnv = "virtualbox";
-    services = {
-      nginx.enable = true;
-      kubernetes.enable = true;
-      redis = {
-        enable = true;
-        port = 777;
-      }
-    };
-    fileSystems."/data" = {
-      fsType = "nfs4";
-      device = "fileserver:/";
-    };
-  }
-  fileserver = {
-    deployment.targetEnv = "virtualbox";
-    services.nfs.server.enable = true;
-    services.nfs.server.exports = ''
-      /exported/directory server_alpha
-    '';
-  };
-}
-
-nixops created -d simple network.nix
-nixops deploy -d simple
-</code></pre>
-
-
-
-        </section>
-        
-        <section>
-          <!-- _S9SLIDE_ -->
-<h2 id="nixops-deploys-to">NixOps Deploys To</h2>
-
-<ul>
-  <li>Amazon EC2 instances and other resources (such as S3 buckets, EC2 key pairs, elastic IPs, etc.).</li>
-  <li>Google Cloud Engine instances and other resources (such as networks, firewalls, IPs, disks, etc.).</li>
-  <li>VirtualBox virtual machines.</li>
-  <li>Hetzner machines.</li>
-  <li>NixOS containers.</li>
-  <li>Any machine already running NixOS.</li>
-</ul>
-
-
-
-        </section>
-        
-        <section>
-          <!-- _S9SLIDE_ -->
-<h2 id="home-manager">home-manager</h2>
-
-<p>Can manage your dotfiles and applications, here’s a little sample of my config:</p>
-
-<pre><code>{ pkgs, ... }:
-{
-  home.packages = with pkgs; [
-    tree ripgrep ruby chromium elixir go fzy
-  ];
-  programs.zsh = {
-    enable = true;
-    enableAutosuggestions = true;
-    enableCompletion = true;
-    history = {
-      ignoreDups = true;
-      save = 1000000;
-      size = 1000000;
-    };
-    shellAliases = {
-      v = "vim";
-      c = "clear";
-      open = "xdg-open";
-    };
-    oh-my-zsh = {
-      enable = true;
-      theme = "flazz";
-      plugins = [
-        "docker"
-        "git"
-        "man"
-        "nyan"
-        "ssh-agent"
-        "sudo"
-        "vi-mode"
-        "yarn"
-        "zsh-navigation-tools"
-        "systemd"
-        "tmux"
-      ];
-    };
-  };
-}
-</code></pre>
-
-<p>more at https://github.com/manveru/dotfiles</p>
 
         </section>
         

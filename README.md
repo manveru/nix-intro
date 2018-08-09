@@ -10,6 +10,8 @@ and then open the `./result/index.html` file.
 The original graphics are available here:
 https://drive.google.com/open?id=1jrvAw56gLQhGHIJej-Rkqg5bKEYi9jIe
 
+Video of the Presentation is here: https://www.youtube.com/watch?v=AFHc3p2EUmw
+
 ## Thanks
 
 * Thanks go to moretea for most of the inspiration for the visualization.
